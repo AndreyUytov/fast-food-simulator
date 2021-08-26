@@ -1,6 +1,6 @@
-### Simple draw app
+### Fast-food-simulator app
 
-<a href="https://andreyuytov.github.io/drawing-app">Посмотреть проект</a>
+<a href="https://andreyuytov.github.io/fast-food-simulator">Посмотреть проект</a>
 
 Для установки зависимостей
 
