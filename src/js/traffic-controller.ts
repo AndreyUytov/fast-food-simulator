@@ -1,4 +1,4 @@
-import { IOrder, Order } from './order'
+import { IOrder } from './order'
 
 export interface TrafficController {
   addToQueue(order: IOrder): void
@@ -6,17 +6,13 @@ export interface TrafficController {
   get orderQueueList(): IOrder[]
   get currentOrder(): IOrder
   set durationOfOrderInMs(ms: number)
-  makeOrder(): any
+  makeOrder(cb: (v: any) => any): Promise<void>
 }
 
 export class TrafficControll implements TrafficController {
   private orderQueue: IOrder[] = []
   private durationOfOrder: number
   private order: IOrder
-
-  constructor() {
-    this.getNextOrder = this.getNextOrder.bind(this)
-  }
 
   addToQueue(order: IOrder) {
     this.orderQueue.push(order)
@@ -34,36 +30,43 @@ export class TrafficControll implements TrafficController {
     return this.order
   }
 
-  getNextOrder() {
-    return (this.order = this.orderQueue.shift())
+  private getNextOrder() {
+    let nextOrder = this.orderQueue.shift()
+    return (this.currentOrder = nextOrder)
+  }
+
+  private set currentOrder(order: IOrder) {
+    this.order = order
   }
 
   set durationOfOrderInMs(ms: number) {
     this.durationOfOrder = ms
   }
 
-  [Symbol.asyncIterator]() {
-    return {
-      durationOfOrder: this.durationOfOrder,
-      getNextOrder: this.getNextOrder,
-
-      async next() {
-        let current = this.getNextOrder()
-
-        await new Promise((res) => setTimeout(res, this.durationOfOrder))
-
-        if (current) {
-          return { done: false, value: current }
-        } else {
-          return { done: true }
-        }
-      },
+  async *[Symbol.asyncIterator]() {
+    let current = this.getNextOrder()
+    while (current) {
+      await new Promise((res) => setTimeout(res, this.durationOfOrder)) //Имитируем работу
+      yield current
+      current = this.getNextOrder()
+      if (!current) {
+        await new Promise((res) => {
+          let timer = setInterval(() => {
+            current = this.getNextOrder()
+            console.log('timer')
+            if (current) {
+              res(current)
+              clearInterval(timer)
+            }
+          }, 1000)
+        })
+      }
     }
   }
 
-  async makeOrder() {
+  async makeOrder(callBack: (v: any) => any) {
     for await (let value of this) {
-      console.log(value)
+      callBack(value)
     }
   }
 }
