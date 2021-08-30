@@ -30,13 +30,28 @@ export class TrafficControll implements TrafficController {
     return this.order
   }
 
-  private getNextOrder() {
-    let nextOrder = this.orderQueue.shift()
-    return (this.currentOrder = nextOrder)
-  }
-
   private set currentOrder(order: IOrder) {
     this.order = order
+  }
+
+  private async getNextOrder() {
+    let nextOrder = this.orderQueue.shift()
+    this.currentOrder = nextOrder
+    if (this.currentOrder) {
+      return this.currentOrder
+    } else {
+      await new Promise((res) => {
+        let timer = setInterval(() => {
+          this.currentOrder = this.orderQueue.shift()
+          console.log('timer')
+          if (this.currentOrder) {
+            res(this.currentOrder)
+            clearInterval(timer)
+            return this.currentOrder
+          }
+        }, 1000)
+      })
+    }
   }
 
   set durationOfOrderInMs(ms: number) {
@@ -44,23 +59,11 @@ export class TrafficControll implements TrafficController {
   }
 
   async *[Symbol.asyncIterator]() {
-    let current = this.getNextOrder()
+    let current = await this.getNextOrder()
     while (current) {
       await new Promise((res) => setTimeout(res, this.durationOfOrder)) //Имитируем работу
       yield current
-      current = this.getNextOrder()
-      if (!current) {
-        await new Promise((res) => {
-          let timer = setInterval(() => {
-            current = this.getNextOrder()
-            console.log('timer')
-            if (current) {
-              res(current)
-              clearInterval(timer)
-            }
-          }, 1000)
-        })
-      }
+      current = await this.getNextOrder()
     }
   }
 
