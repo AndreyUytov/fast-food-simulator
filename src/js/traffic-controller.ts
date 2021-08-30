@@ -1,19 +1,24 @@
-import { Order } from './order'
+import { IOrder, Order } from './order'
 
 export interface TrafficController {
-  addToQueue(order: Order): void
+  addToQueue(order: IOrder): void
   get orderQueueLength(): number
-  get orderQueueList(): Order[]
-  get currentOrder(): Order
+  get orderQueueList(): IOrder[]
+  get currentOrder(): IOrder
   set durationOfOrderInMs(ms: number)
   makeOrder(): any
 }
 
 export class TrafficControll implements TrafficController {
-  private orderQueue: Order[] = []
+  private orderQueue: IOrder[] = []
   private durationOfOrder: number
+  private order: IOrder
 
-  addToQueue(order: Order) {
+  constructor() {
+    this.getNextOrder = this.getNextOrder.bind(this)
+  }
+
+  addToQueue(order: IOrder) {
     this.orderQueue.push(order)
   }
 
@@ -26,7 +31,11 @@ export class TrafficControll implements TrafficController {
   }
 
   get currentOrder() {
-    return this.orderQueue.shift()
+    return this.order
+  }
+
+  getNextOrder() {
+    return (this.order = this.orderQueue.shift())
   }
 
   set durationOfOrderInMs(ms: number) {
@@ -35,13 +44,16 @@ export class TrafficControll implements TrafficController {
 
   [Symbol.asyncIterator]() {
     return {
-      current: this.currentOrder,
+      durationOfOrder: this.durationOfOrder,
+      getNextOrder: this.getNextOrder,
 
       async next() {
+        let current = this.getNextOrder()
+
         await new Promise((res) => setTimeout(res, this.durationOfOrder))
 
-        if (this.current) {
-          return { done: false, value: this.current }
+        if (current) {
+          return { done: false, value: current }
         } else {
           return { done: true }
         }
@@ -51,7 +63,7 @@ export class TrafficControll implements TrafficController {
 
   async makeOrder() {
     for await (let value of this) {
-      alert(value)
+      console.log(value)
     }
   }
 }
