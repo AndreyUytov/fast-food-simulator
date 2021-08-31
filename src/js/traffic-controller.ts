@@ -36,7 +36,6 @@ export class TrafficControll implements TrafficController {
 
   private async getNextOrder() {
     let nextOrder = this.orderQueue.shift()
-    console.log(this.currentOrder, this.durationOfOrder)
     if (nextOrder) {
       return await new Promise((res) => {
         this.currentOrder = nextOrder
@@ -46,7 +45,6 @@ export class TrafficControll implements TrafficController {
       return await new Promise((res) => {
         let timer = setInterval(() => {
           nextOrder = this.orderQueue.shift()
-          console.log('timer')
           if (nextOrder) {
             this.currentOrder = nextOrder
             clearInterval(timer)
