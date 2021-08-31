@@ -5,6 +5,7 @@ export default class App {
   private reception: TrafficController
   private shef: TrafficController
   private waiter: TrafficController
+  private timerForVisitorGeneration: ReturnType<typeof setInterval>
 
   constructor() {
     this.reception = new TrafficControll()
@@ -31,20 +32,37 @@ export default class App {
   }
 
   visitorLoop = (timer: number) => {
-    setInterval(() => this.addVisitor(), timer)
+    return setInterval(() => this.addVisitor(), timer)
   }
 
   start() {
+    this.reception.toggleMakeOrder(false)
+    this.shef.toggleMakeOrder(false)
+    this.waiter.toggleMakeOrder(false)
+
     this.reception.durationOfOrderInMs = 3000
     this.shef.durationOfOrderInMs = 6000
     this.waiter.durationOfOrderInMs = 5000
 
-    this.visitorLoop(2000)
+    this.timerForVisitorGeneration = this.visitorLoop(2000)
 
     this.reception.makeOrder(this.addOrder)
 
     this.shef.makeOrder(this.addReadyOrder)
 
     this.waiter.makeOrder(console.log)
+
+    setTimeout(() => {
+      console.log(`STOOOOOOOOOOOP`)
+
+      this.stop()
+    }, 10000)
+  }
+
+  stop() {
+    clearInterval(this.timerForVisitorGeneration)
+    this.reception.toggleMakeOrder(true)
+    this.shef.toggleMakeOrder(true)
+    this.waiter.toggleMakeOrder(true)
   }
 }

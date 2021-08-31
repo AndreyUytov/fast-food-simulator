@@ -6,13 +6,20 @@ export interface TrafficController {
   get orderQueueList(): IOrder[]
   get currentOrder(): IOrder
   set durationOfOrderInMs(ms: number)
+  get durationOfOrderInMs(): number
   makeOrder(cb: (v: any) => any): Promise<void>
+  toggleMakeOrder(value: boolean): void
 }
 
 export class TrafficControll implements TrafficController {
   private orderQueue: IOrder[] = []
   private durationOfOrder: number
   private order: IOrder = null
+  private stopTraffic: boolean = false
+
+  toggleMakeOrder(value: boolean) {
+    this.stopTraffic = value
+  }
 
   addToQueue(order: IOrder) {
     this.orderQueue.push(order)
@@ -36,14 +43,16 @@ export class TrafficControll implements TrafficController {
 
   private async getNextOrder() {
     let nextOrder = this.orderQueue.shift()
-    if (nextOrder) {
+    let timer: ReturnType<typeof setInterval>
+
+    if (nextOrder && !this.stopTraffic) {
       return await new Promise((res) => {
         this.currentOrder = nextOrder
         res(nextOrder)
       })
-    } else {
+    } else if (!nextOrder && !this.stopTraffic) {
       return await new Promise((res) => {
-        let timer = setInterval(() => {
+        timer = setInterval(() => {
           nextOrder = this.orderQueue.shift()
           if (nextOrder) {
             this.currentOrder = nextOrder
@@ -52,6 +61,9 @@ export class TrafficControll implements TrafficController {
           }
         }, 1000)
       })
+    } else if (this.stopTraffic) {
+      clearInterval(timer)
+      this.orderQueue = []
     }
   }
 
@@ -59,11 +71,13 @@ export class TrafficControll implements TrafficController {
     this.durationOfOrder = ms
   }
 
-  async *[Symbol.asyncIterator]() {
-    while (true) {
-      await new Promise((res) => setTimeout(res, this.durationOfOrder)) //Имитируем работу
-      console.log()
+  get durationOfOrderInMs() {
+    return this.durationOfOrder
+  }
 
+  async *[Symbol.asyncIterator]() {
+    while (!this.stopTraffic) {
+      await new Promise((res) => setTimeout(res, this.durationOfOrder)) //Имитируем работу)
       let current = await this.getNextOrder()
       yield current
     }
