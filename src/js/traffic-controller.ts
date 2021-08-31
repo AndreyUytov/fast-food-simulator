@@ -12,7 +12,7 @@ export interface TrafficController {
 export class TrafficControll implements TrafficController {
   private orderQueue: IOrder[] = []
   private durationOfOrder: number
-  private order: IOrder
+  private order: IOrder = null
 
   addToQueue(order: IOrder) {
     this.orderQueue.push(order)
@@ -36,18 +36,21 @@ export class TrafficControll implements TrafficController {
 
   private async getNextOrder() {
     let nextOrder = this.orderQueue.shift()
-    this.currentOrder = nextOrder
-    if (this.currentOrder) {
-      return this.currentOrder
+    console.log(this.currentOrder, this.durationOfOrder)
+    if (nextOrder) {
+      return await new Promise((res) => {
+        this.currentOrder = nextOrder
+        res(nextOrder)
+      })
     } else {
-      await new Promise((res) => {
+      return await new Promise((res) => {
         let timer = setInterval(() => {
-          this.currentOrder = this.orderQueue.shift()
+          nextOrder = this.orderQueue.shift()
           console.log('timer')
-          if (this.currentOrder) {
-            res(this.currentOrder)
+          if (nextOrder) {
+            this.currentOrder = nextOrder
             clearInterval(timer)
-            return this.currentOrder
+            res(nextOrder)
           }
         }, 1000)
       })
@@ -59,11 +62,12 @@ export class TrafficControll implements TrafficController {
   }
 
   async *[Symbol.asyncIterator]() {
-    let current = await this.getNextOrder()
-    while (current) {
+    while (true) {
       await new Promise((res) => setTimeout(res, this.durationOfOrder)) //Имитируем работу
+      console.log()
+
+      let current = await this.getNextOrder()
       yield current
-      current = await this.getNextOrder()
     }
   }
 
