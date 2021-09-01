@@ -4,7 +4,7 @@
       <li class="up-row__item">
         <div>
           new Visitor coming after:
-          <span class="reception-timer"> 60 <span>sec</span> </span>
+          <span id="reception-timer"> 60 <span>sec</span> </span>
         </div>
       </li>
 
@@ -28,42 +28,37 @@
   <section class="down-row">
     <ul class="down-row__list list">
       <li class="down-row__item">
-        <div>guest-count: <span class="guest-count">4</span></div>
+        <div>guest-count: <span id="guest-count">0</span></div>
       </li>
 
       <li class="down-row__item">
         <div>
-          current accepted order №: <span class="reception-order">83</span>
+          current accepted order №: <span id="reception-order">Wait guest</span>
         </div>
       </li>
 
       <li class="down-row__item">
         <div>
           <div class="shef__title">
-            current accepted order №: <span class="shef-order">83</span>
+            current cooking order №: <span id="shef-order">Wait order</span>
           </div>
 
-          <ol class="shef__list list">
-            <li>order № <span class="shef__order-number">79</span></li>
-            <li>order № <span class="shef__order-number">79</span></li>
-            <li>order № <span class="shef__order-number">79</span></li>
-            <li>order № <span class="shef__order-number">79</span></li>
-          </ol>
+          <ol class="shef__list list"></ol>
         </div>
       </li>
 
       <li class="down-row__item">
         <div>
           <div class="waiter__title">
-            current done order №: <span class="shef-order">83</span>
+            current done order №:
+            <span id="waiter-order">Wait ready order</span>
           </div>
 
-          <ol class="waiter__list list">
-            <li>order № <span class="waiter__order-number">79</span></li>
-            <li>order № <span class="waiter__order-number">79</span></li>
-            <li>order № <span class="waiter__order-number">79</span></li>
-            <li>order № <span class="waiter__order-number">79</span></li>
-          </ol>
+          <ol class="waiter__list list"></ol>
+
+          <div class="waiter-done">
+            ready-to-go food counter <span id="done-fast-food"> 0 </span>
+          </div>
         </div>
       </li>
     </ul>

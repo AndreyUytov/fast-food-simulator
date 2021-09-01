@@ -9,14 +9,13 @@ export interface IOrder {
   set stateOrder(state: StateOrder)
 }
 
-let orderId = 0
-
 export class Order implements IOrder {
   private orderId: number
   private state: StateOrder
+  static orderId: number = 1
 
   constructor() {
-    this.orderId = orderId++
+    this.orderId = Order.orderId++
     this.state = {
       orderAccepted: false,
       orderDone: false,

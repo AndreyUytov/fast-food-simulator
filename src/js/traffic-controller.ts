@@ -47,7 +47,6 @@ export class TrafficControll implements TrafficController {
 
     if (nextOrder && !this.stopTraffic) {
       return await new Promise((res) => {
-        this.currentOrder = nextOrder
         res(nextOrder)
       })
     } else if (!nextOrder && !this.stopTraffic) {
@@ -55,7 +54,6 @@ export class TrafficControll implements TrafficController {
         timer = setInterval(() => {
           nextOrder = this.orderQueue.shift()
           if (nextOrder) {
-            this.currentOrder = nextOrder
             clearInterval(timer)
             res(nextOrder)
           }
@@ -63,6 +61,7 @@ export class TrafficControll implements TrafficController {
       })
     } else if (this.stopTraffic) {
       clearInterval(timer)
+      this.currentOrder = null
       this.orderQueue = []
     }
   }
@@ -77,9 +76,11 @@ export class TrafficControll implements TrafficController {
 
   async *[Symbol.asyncIterator]() {
     while (!this.stopTraffic) {
+      let current = (await this.getNextOrder()) as IOrder
+      this.currentOrder = current
       await new Promise((res) => setTimeout(res, this.durationOfOrder)) //Имитируем работу)
-      let current = await this.getNextOrder()
       yield current
+      this.currentOrder = null
     }
   }
 
