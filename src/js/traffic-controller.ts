@@ -13,7 +13,7 @@ export interface TrafficController {
 
 export class TrafficControll implements TrafficController {
   private orderQueue: IOrder[] = []
-  private durationOfOrder: number
+  private durationOfOrder: number = 3000
   private order: IOrder = null
   private stopTraffic: boolean = false
 

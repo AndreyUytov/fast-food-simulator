@@ -143,3 +143,37 @@ input[type='radio'].visually-hidden {
     }
   }
 }
+
+.up-row__timer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.timer__value {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timer-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 70px;
+  margin-right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  & input {
+    width: 50px;
+  }
+}
+
+.timer-label__button {
+  margin: 0 12px;
+}

@@ -7,6 +7,7 @@ export default class App {
   private waiter: TrafficController
   private timerForVisitorGeneration: ReturnType<typeof setInterval>
   private doneFastFoods: IOrder[] = []
+  private animateId: ReturnType<typeof requestAnimationFrame>
 
   private guestCount: HTMLElement
   private currentAcceptedOrder: HTMLElement
@@ -17,6 +18,8 @@ export default class App {
   private doneFastFood: HTMLElement
   private startButton: HTMLElement
   private stopButton: HTMLElement
+  private guestTimer: HTMLElement
+  private shefTimer: HTMLElement
 
   constructor() {
     this.reception = new TrafficControll()
@@ -41,6 +44,43 @@ export default class App {
     this.stopButton.addEventListener('click', () => {
       this.stop()
     })
+
+    this.guestTimer = document.getElementById('reception-timer')
+    this.shefTimer = document.getElementById('shef-timer')
+
+    this.guestTimer.addEventListener('click', this.timerListener)
+    this.shefTimer.addEventListener('click', this.timerListener)
+  }
+
+  timerListener = (evt: PointerEvent) => {
+    evt.preventDefault()
+    let target = evt.target as HTMLElement
+    if (!target.classList.contains('timer__value-text')) return
+
+    let label = target.nextElementSibling
+    label.classList.toggle('visually-hidden')
+    let input = label.querySelector('input')
+
+    let labelListener = (evt: PointerEvent) => {
+      let button = evt.target as HTMLButtonElement
+      if (!button.closest('BUTTON')) return
+
+      let value = +input.value * 1000
+      if (!value) {
+        alert('value must be > 0!')
+        return
+      }
+      target.closest('#reception-timer')
+        ? (this.reception.durationOfOrderInMs = value)
+        : (this.shef.durationOfOrderInMs = value)
+
+      label.classList.toggle('visually-hidden')
+      target.textContent = `${value / 1000}sec`
+
+      label.removeEventListener('click', labelListener)
+    }
+
+    label.addEventListener('click', labelListener)
   }
 
   addVisitor = () => {
@@ -92,7 +132,7 @@ export default class App {
       .join('')
 
     this.doneFastFood.textContent = `${this.doneFastFoods.length}`
-    requestAnimationFrame(this.updateTextInfo)
+    this.animateId = requestAnimationFrame(this.updateTextInfo)
   }
 
   visitorLoop = (timer: number) => {
@@ -102,15 +142,11 @@ export default class App {
   }
 
   start() {
-    requestAnimationFrame(this.updateTextInfo)
+    this.animateId = requestAnimationFrame(this.updateTextInfo)
 
     this.reception.toggleMakeOrder(false)
     this.shef.toggleMakeOrder(false)
     this.waiter.toggleMakeOrder(false)
-
-    this.reception.durationOfOrderInMs = 3000
-    this.shef.durationOfOrderInMs = 5000
-    this.waiter.durationOfOrderInMs = 2000
 
     this.timerForVisitorGeneration = this.visitorLoop(3000)
 
@@ -122,6 +158,7 @@ export default class App {
   }
 
   stop() {
+    cancelAnimationFrame(this.animateId)
     clearInterval(this.timerForVisitorGeneration)
     this.reception.toggleMakeOrder(true)
     this.shef.toggleMakeOrder(true)

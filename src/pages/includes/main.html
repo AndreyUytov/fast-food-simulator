@@ -2,16 +2,36 @@
   <section class="up-row">
     <ul class="up-row__list list">
       <li class="up-row__item">
-        <div>
-          new Visitor coming after:
-          <span id="reception-timer"> 60 <span>sec</span> </span>
+        <div class="up-row__timer">
+          new Order accepted after:
+          <span id="reception-timer" class="timer__value">
+            <span class="timer__value-text">3sec</span>
+            <label class="timer-label visually-hidden">
+              <input type="text" />
+              <button class="timer-label__button button">
+                <svg width="20" height="20">
+                  <use href="#arrow" />
+                </svg>
+              </button>
+            </label>
+          </span>
         </div>
       </li>
 
       <li class="up-row__item">
-        <div>
+        <div class="up-row__timer">
           Order done after:
-          <span class="shef-timer"> 60 <span>sec</span> </span>
+          <span id="shef-timer" class="timer__value">
+            <span class="timer__value-text">3sec</span>
+            <label class="timer-label visually-hidden">
+              <input type="text" />
+              <button class="timer-label__button button">
+                <svg width="20" height="20">
+                  <use href="#arrow" />
+                </svg>
+              </button>
+            </label>
+          </span>
         </div>
       </li>
 
