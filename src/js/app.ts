@@ -148,7 +148,7 @@ export default class App {
     this.shef.toggleMakeOrder(false)
     this.waiter.toggleMakeOrder(false)
 
-    this.timerForVisitorGeneration = this.visitorLoop(3000)
+    this.timerForVisitorGeneration = this.visitorLoop(1000)
 
     this.reception.makeOrder(this.addOrder)
 
