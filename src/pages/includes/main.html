@@ -3,6 +3,23 @@
     <ul class="up-row__list list">
       <li class="up-row__item">
         <div class="up-row__timer">
+          new Guest after:
+          <span id="guest-timer" class="timer__value">
+            <span class="timer__value-text">1sec</span>
+            <label class="timer-label visually-hidden">
+              <input type="text" />
+              <button class="timer-label__button button">
+                <svg width="20" height="20">
+                  <use href="#arrow" />
+                </svg>
+              </button>
+            </label>
+          </span>
+        </div>
+      </li>
+
+      <li class="up-row__item">
+        <div class="up-row__timer">
           new Order accepted after:
           <span id="reception-timer" class="timer__value">
             <span class="timer__value-text">3sec</span>
@@ -55,6 +72,8 @@
         <div>
           current accepted order №: <span id="reception-order">Wait guest</span>
         </div>
+
+        <ol class="reception__list list"></ol>
       </li>
 
       <li class="down-row__item">
@@ -68,7 +87,7 @@
       </li>
 
       <li class="down-row__item">
-        <div>
+        <div class="waiter-block">
           <div class="waiter__title">
             current done order №:
             <span id="waiter-order">Wait ready order</span>
@@ -77,7 +96,7 @@
           <ol class="waiter__list list"></ol>
 
           <div class="waiter-done">
-            ready-to-go food counter <span id="done-fast-food"> 0 </span>
+            ready-to-go food counter: <span id="done-fast-food"> 0 </span>
           </div>
         </div>
       </li>

@@ -11,6 +11,7 @@ export default class App {
 
   private guestCount: HTMLElement
   private currentAcceptedOrder: HTMLElement
+  private receptionList: HTMLElement
   private currentCookingOrder: HTMLElement
   private cookingList: HTMLElement
   private currentDoneOrder: HTMLElement
@@ -18,8 +19,11 @@ export default class App {
   private doneFastFood: HTMLElement
   private startButton: HTMLElement
   private stopButton: HTMLElement
-  private guestTimer: HTMLElement
+  private receptionTimer: HTMLElement
   private shefTimer: HTMLElement
+  private guestTimer: HTMLElement
+  private guestInterval: number = 1000
+  private isSimulationPlayed: boolean = false
 
   constructor() {
     this.reception = new TrafficControll()
@@ -28,6 +32,7 @@ export default class App {
 
     this.guestCount = document.getElementById('guest-count')
     this.currentAcceptedOrder = document.getElementById('reception-order')
+    this.receptionList = document.querySelector('.reception__list')
     this.currentCookingOrder = document.getElementById('shef-order')
     this.cookingList = document.querySelector('.shef__list')
     this.currentDoneOrder = document.getElementById('waiter-order')
@@ -45,21 +50,25 @@ export default class App {
       this.stop()
     })
 
-    this.guestTimer = document.getElementById('reception-timer')
+    this.guestTimer = document.getElementById('guest-timer')
+    this.receptionTimer = document.getElementById('reception-timer')
     this.shefTimer = document.getElementById('shef-timer')
 
     this.guestTimer.addEventListener('click', this.timerListener)
+    this.receptionTimer.addEventListener('click', this.timerListener)
     this.shefTimer.addEventListener('click', this.timerListener)
   }
 
   timerListener = (evt: PointerEvent) => {
     evt.preventDefault()
+    if (this.isSimulationPlayed) return
     let target = evt.target as HTMLElement
     if (!target.classList.contains('timer__value-text')) return
 
     let label = target.nextElementSibling
     label.classList.toggle('visually-hidden')
     let input = label.querySelector('input')
+    input.focus()
 
     let labelListener = (evt: PointerEvent) => {
       let button = evt.target as HTMLButtonElement
@@ -70,9 +79,14 @@ export default class App {
         alert('value must be > 0!')
         return
       }
-      target.closest('#reception-timer')
-        ? (this.reception.durationOfOrderInMs = value)
-        : (this.shef.durationOfOrderInMs = value)
+
+      if (target.closest('#guest-timer')) {
+        this.guestInterval = value
+      } else if (target.closest('#reception-timer')) {
+        this.reception.durationOfOrderInMs = value
+      } else {
+        this.shef.durationOfOrderInMs = value
+      }
 
       label.classList.toggle('visually-hidden')
       target.textContent = `${value / 1000}sec`
@@ -107,48 +121,56 @@ export default class App {
       this.reception.currentOrder?.orderNumber || 'Wait guest'
     }`
 
+    this.receptionList.innerHTML = this.renderOrders(
+      this.reception.orderQueueList
+    )
+
     this.currentCookingOrder.textContent = `${
       this.shef.currentOrder?.orderNumber || 'Wait order'
     }`
 
-    this.cookingList.innerHTML = this.shef.orderQueueList
-      .map((el) => {
-        return `
-          <li>order № <span class="shef__order-number">${el.orderNumber}</span></li>
-        `
-      })
-      .join('')
+    this.cookingList.innerHTML = this.renderOrders(this.shef.orderQueueList)
 
     this.currentDoneOrder.textContent = `${
       this.waiter.currentOrder?.orderNumber || 'Wait ready order'
     }`
 
-    this.waiterList.innerHTML = this.waiter.orderQueueList
-      .map((el) => {
-        return `
-            <li>order № <span class="shef__order-number">${el.orderNumber}</span></li>
-          `
-      })
-      .join('')
+    this.waiterList.innerHTML = this.renderOrders(this.waiter.orderQueueList)
 
     this.doneFastFood.textContent = `${this.doneFastFoods.length}`
     this.animateId = requestAnimationFrame(this.updateTextInfo)
   }
 
-  visitorLoop = (timer: number) => {
+  renderOrders = (orderList: IOrder[]) => {
+    let orders = [...orderList]
+    if (orders.length > 7) {
+      orders = orders.slice(0, 7)
+    }
+    return orders
+      .map((el, i) => {
+        return `
+          <li>order № <span>${el.orderNumber}</span></li>
+          ${i === 6 ? '...' : ''}
+        `
+      })
+      .join('')
+  }
+
+  visitorLoop = () => {
     return setInterval(() => {
       this.addVisitor()
-    }, timer)
+    }, this.guestInterval)
   }
 
   start() {
+    this.isSimulationPlayed = true
     this.animateId = requestAnimationFrame(this.updateTextInfo)
 
     this.reception.toggleMakeOrder(false)
     this.shef.toggleMakeOrder(false)
     this.waiter.toggleMakeOrder(false)
 
-    this.timerForVisitorGeneration = this.visitorLoop(1000)
+    this.timerForVisitorGeneration = this.visitorLoop()
 
     this.reception.makeOrder(this.addOrder)
 
@@ -158,6 +180,7 @@ export default class App {
   }
 
   stop() {
+    this.isSimulationPlayed = false
     cancelAnimationFrame(this.animateId)
     clearInterval(this.timerForVisitorGeneration)
     this.reception.toggleMakeOrder(true)

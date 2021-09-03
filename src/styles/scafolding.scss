@@ -153,15 +153,32 @@ input[type='radio'].visually-hidden {
 
 .timer__value {
   position: relative;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  cursor: pointer;
+}
+
+.timer__value-text {
+  padding: 0px 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid gray;
+
+  &:hover {
+    background-color: gray;
+  }
 }
 
 .timer-label {
   position: absolute;
-  left: 0;
-  top: 0;
+  left: 0px;
+  top: 1px;
   width: 70px;
   margin-right: 12px;
 
@@ -176,4 +193,14 @@ input[type='radio'].visually-hidden {
 
 .timer-label__button {
   margin: 0 12px;
+}
+
+.waiter-block {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.waiter-done {
+  margin-top: auto;
 }
